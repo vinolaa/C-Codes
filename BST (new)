@@ -1,0 +1,103 @@
+/*THIS CODE IS ABOUT BINARY SEARCH TREE, WITH THE FOLLOWING FUNCIONS:
+ - insert
+ - remove
+ - print
+ALL FUNCTIONS ARE USING POINTER TO POINTER (DOUBLE POINTER) WHEN CONVENIENT.
+
+
+#include <stdio.h>
+#include <stdlib.h>
+
+typedef struct TNoABP{
+   int chave;
+   struct TNoABP *dir, *esq;
+}No;
+
+No *insere(No **raiz, int chave);
+No **busca(No **raiz, int chave);
+void remover(No **raiz, int chave);
+void imprime(No *raiz);
+No **ppMenor(No **raiz);
+
+int main(){
+    int n, chave, k;
+    No *raiz = NULL;
+
+    scanf("%d", &n); //ler um numero n>0.
+
+    for(int i = 0; i < n; i++){ //Ler a sequencia de n chaves e inseri-las.
+        scanf("%d", &chave);
+        insere(&raiz, chave);
+    }
+
+    scanf("%d", &k);
+    remover(&raiz, k);
+    imprime(raiz);
+
+    return 0;
+}
+
+No **ppMenor(No **raiz){
+    if((*raiz) == NULL) return NULL;
+    while((*raiz)->esq != NULL){
+        raiz = &((*raiz)->esq);
+    }
+    return &(*raiz);
+}
+
+No *insere(No **raiz, int chave){
+    if(*raiz == NULL){
+        *raiz = (No*)malloc(sizeof(No));
+        if(*raiz == NULL){
+            return NULL;
+        }else{
+            (*raiz)->chave = chave;
+            (*raiz)->esq = (*raiz)->dir = NULL;
+            return *raiz;
+        }
+    }
+    if(chave < (*raiz)->chave) return insere(&((*raiz)->esq), chave);
+    else return insere(&((*raiz)->dir), chave);
+}
+
+No **busca(No **raiz, int chave){
+    while(*raiz != NULL){
+        if((*raiz)->chave == chave)
+            return raiz;
+        if((*raiz)->chave < chave)
+            raiz = &((*raiz)->dir);
+        else
+            raiz = &((*raiz)->esq);
+    }
+    return NULL;
+}
+
+void remover(No **raiz, int chave){
+    No **pp = busca(raiz, chave);
+    No *filho = NULL;
+    if((*pp)->dir == NULL && (*pp)->esq == NULL){
+        free(*pp);
+        *pp = NULL;
+        return;
+    }
+
+    else if(((*pp)->dir == NULL) != ((*pp)->esq == NULL)){
+        filho = ((*pp)->esq == NULL) ? (*pp)->dir : (*pp)->esq;
+        free(*pp);
+        *pp = filho;
+        return;
+    }
+
+    else if((*pp)->esq && (*pp)->dir){
+        No **pps = ppMenor(&(*pp)->dir);
+        (*pp)->chave = (*pps)->chave;
+        remover(pps, (*pps)->chave);
+    }
+}
+
+void imprime(No *raiz){
+    if (raiz==NULL) return;
+    imprime(raiz->esq);
+    printf("%d\n", raiz->chave);
+    imprime(raiz->dir);
+}
